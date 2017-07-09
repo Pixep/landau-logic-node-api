@@ -29,17 +29,38 @@ wsServer.on('request', function(request) {
       return;
     }
 
+    // Accept connection
     var connection = request.accept(null, request.origin);
     console.log((new Date()) + ' Connection accepted from ' + request.origin);
+
+    // Echo text received
     connection.on('message', function(message) {
         if (message.type !== 'utf8') {
             return;
         }
 
         console.log('Received Message: ' + message.utf8Data);
-        connection.sendUTF(message.utf8Data);
+
+        // Process message
     });
+
+    // Close handler
     connection.on('close', function(reasonCode, description) {
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
+        clearInterval(connection.controlTimer);
     });
+
+    // Send control periodically
+    function sendControl() {
+      var data = {
+        steering: 0,
+        acceleration: -0.5,
+        brake: 0.5,
+        handBrake: 0
+      }
+
+      connection.sendUTF(JSON.stringify(data));
+    }
+
+    connection.controlTimer = setInterval(sendControl, 1500);
 });
