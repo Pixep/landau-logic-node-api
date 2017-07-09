@@ -30,9 +30,12 @@ wsAnalysisServer = new WebSocketServer({
 });
 
 function originIsAllowed(origin) {
-  // put logic here to detect whether the specified origin is allowed.
-  return true;
+    // put logic here to detect whether the specified origin is allowed.
+    return true;
 }
+
+var commandWs;
+var analysisWs;
 
 wsControlServer.on('request', function(request) {
     if (!originIsAllowed(request.origin)) {
@@ -45,6 +48,8 @@ wsControlServer.on('request', function(request) {
     // Accept connection
     var connection = request.accept(null, request.origin);
     console.log((new Date()) + ' Connection accepted from ' + request.origin);
+
+    commandWs = connection;
 
     // Handle reception
     connection.on('message', function(message) {
@@ -63,14 +68,14 @@ wsControlServer.on('request', function(request) {
 
     // Send control periodically
     function sendControl() {
-      var data = {
-        steering: 0,
-        acceleration: -0.5,
-        brake: 0.5,
-        handBrake: 0
-      }
+        var data = {
+            steering: 0,
+            acceleration: -0.5,
+            brake: 0.5,
+            handBrake: 0
+        }
 
-      connection.sendUTF(JSON.stringify(data));
+        //connection.sendUTF(JSON.stringify(data));
     }
 
     connection.controlTimer = setInterval(sendControl, 1500);
@@ -78,15 +83,17 @@ wsControlServer.on('request', function(request) {
 
 wsAnalysisServer.on('request', function(request) {
     if (!originIsAllowed(request.origin)) {
-      // Make sure we only accept requests from an allowed origin
-      request.reject();
-      console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
-      return;
+        // Make sure we only accept requests from an allowed origin
+        request.reject();
+        console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
+        return;
     }
 
     // Accept connection
     var connection = request.accept(null, request.origin);
     console.log((new Date()) + ' Connection accepted from ' + request.origin);
+
+    analysisWs = connection;
 
     // Handle reception
     connection.on('message', function(message) {
@@ -95,6 +102,17 @@ wsAnalysisServer.on('request', function(request) {
         }
 
         console.log('Analysis message received: ' + message.utf8Data);
+        if (!commandWs)
+            return;
+
+        var data = {
+          steering: 0.5,
+          acceleration: 1,
+          brake: 0,
+          handBrake: 0
+        }
+
+        commandWs.sendUTF(JSON.stringify(data));
     });
 
     // Close handler
