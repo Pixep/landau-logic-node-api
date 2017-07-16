@@ -105,14 +105,21 @@ wsAnalysisServer.on('request', function(request) {
         if (!commandWs)
             return;
 
-        var data = {
-          steering: 0.5,
-          acceleration: 1,
-          brake: 0,
+        var sensors = JSON.parse(message.utf8Data);
+        var goBack = false;
+        if (sensors.value[0] == 0)
+            goBack = false;
+        else
+            goBack = true;
+
+        var control = {
+          steering: goBack ? -0.6 : 0,
+          acceleration: goBack ? 0 : 0.3,
+          brake: goBack ? 0.5 : 0,
           handBrake: 0
         }
 
-        commandWs.sendUTF(JSON.stringify(data));
+        commandWs.sendUTF(JSON.stringify(control));
     });
 
     // Close handler
