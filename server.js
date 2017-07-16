@@ -107,6 +107,10 @@ wsAnalysisServer.on('request', function(request) {
 
         var sensors = JSON.parse(message.utf8Data);
         var goBack = false;
+
+        if (!sensors.value)
+          return;
+
         if (sensors.value[0] == 0)
             goBack = false;
         else
