@@ -116,14 +116,7 @@ wsAnalysisServer.on('request', function(request) {
         else
             goBack = true;
 
-        var control = {
-          steering: goBack ? -0.6 : 0,
-          acceleration: goBack ? 0 : 0.3,
-          brake: goBack ? 0.5 : 0,
-          handBrake: 0
-        }
-
-        commandWs.sendUTF(JSON.stringify(control));
+        controlVehicle(goBack ? 0 : 0.3, goBack ? -0.6 : 0, goBack ? 0.5 : 0);
     });
 
     // Close handler
@@ -131,3 +124,19 @@ wsAnalysisServer.on('request', function(request) {
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
     });
 });
+
+function controlVehicle(_acceleration, _steering, _brake) {
+  if (!commandWs) {
+    console.log("Failed to control vehicle, no connected to control service")
+    return;
+  }
+
+  var control = {
+    steering: _steering,
+    acceleration: _acceleration,
+    brake: _brake,
+    handBrake: 0
+  }
+
+  commandWs.sendUTF(JSON.stringify(control));
+}
