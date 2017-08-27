@@ -41,13 +41,13 @@ wsControlServer.on('request', function(request) {
     if (!originIsAllowed(request.origin)) {
       // Make sure we only accept requests from an allowed origin
       request.reject();
-      console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
+      console.log((new Date()) + ' Connection to control server from origin ' + request.origin + ' rejected.');
       return;
     }
 
     // Accept connection
     var connection = request.accept(null, request.origin);
-    console.log((new Date()) + ' Connection accepted from ' + request.origin);
+    console.log((new Date()) + ' Connection to control server accepted from ' + request.origin);
 
     commandWs = connection;
 
@@ -85,13 +85,13 @@ wsAnalysisServer.on('request', function(request) {
     if (!originIsAllowed(request.origin)) {
         // Make sure we only accept requests from an allowed origin
         request.reject();
-        console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
+        console.log((new Date()) + ' Connection to analysis server from origin ' + request.origin + ' rejected.');
         return;
     }
 
     // Accept connection
     var connection = request.accept(null, request.origin);
-    console.log((new Date()) + ' Connection accepted from ' + request.origin);
+    console.log((new Date()) + ' Connection to analysis server accepted from ' + request.origin);
 
     analysisWs = connection;
 
